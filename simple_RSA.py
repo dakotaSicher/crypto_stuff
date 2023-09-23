@@ -15,18 +15,18 @@ def EA(a,b): #does the inverse exist
     if (gcd(a,b) == 1): return True
     return False
 
-#need: m > a 
+#need: m > r 
 #calculate the inverse 
 #my lazy version of extended euclidian algo
-def findInv(a,m): 
+def findInv(r,m): 
     inv = -1
-    if(not EA(m,a)): return inv #gcd = 1 
+    if(not EA(m,r)): return inv #gcd = 1 
     # need to solve 1 == i*m + t*a => t+m = inv
-    i = 1
-    t = -int(m/a)
-    while (i*m + t*a != 1):
-        i += 1
-        t = -int(m*i/a)
+    q = 1
+    t = -int(m/r)
+    while (q*m + t*r != 1):
+        q += 1
+        t = -int(m*q/r)
 
     inv = t + m
     return inv
@@ -50,14 +50,15 @@ def pickPub(phi_n):
     #find prime factors of %
     i = 0
     phiFactors = []
+    # upper limit for prime factor for a number is the square root of the number 
     limit = math.sqrt(phi_n)
     num = phi_n
-    while(primeList[i] < limit): # upper limit for prime factor for a number is the square root of the number 
+    while(primeList[i] < limit): 
         if(num%primeList[i] == 0): 
             phiFactors.append(primeList[i])
             num = num/primeList[i]
         else: i += 1
-    print(phiFactors)
+    #print(phiFactors)
     #easy answer is pick a prime number that is not a prime factor of Phi and less than phi
     #need to make sure we have all the primes up to phi
     while(primeList[-1] < phi_n):
@@ -71,10 +72,14 @@ def pickPub(phi_n):
         if primeList[j] not in phiFactors:
             options.append(primeList[j])
         j +=1
-    print(options)
+    #print(options)
     #options = the set of prime numbers up to phi not including the prime factors of phi
     return options[random.randint(0,len(options)-1)]
 
+
+#problem occurs when n is too small (less than 127 I THINK) 
+#results in decrypted message not being right in the cases
+#already tried adding back in n to the final decrypted integers to get the correct ascii value but its not 100%
 
 def encrypt(m, e, n):
     s = []
