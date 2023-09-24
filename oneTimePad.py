@@ -1,4 +1,6 @@
-
+#Dakota Sicher
+#simple program to encrypt text message using a one-time-pad of the same length
+#
 def applyPad(string, key):
     assert(len(string) == len(key))
     cipher = ""
@@ -10,7 +12,6 @@ def applyPad(string, key):
 if __name__=="__main__":
     plainText = input("enter your plain text: ")
     pad = input("enter you one-time-pad: ")
-
     
     cipherText = applyPad(plainText, pad)
     print(cipherText)

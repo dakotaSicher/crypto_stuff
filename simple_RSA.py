@@ -20,7 +20,7 @@ def EA(a,b): #does the inverse exist
 def findInv(r,m): 
     inv = -1
     if(not EA(m,r)): return inv #gcd = 1 
-    # need to solve 1 == i*m + t*a => t+m = inv
+    # need to solve 1 == q*m + t*r => t+m = inv
     q = 1
     t = -int(m/r)
     while (q*m + t*r != 1):
