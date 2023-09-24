@@ -1,6 +1,5 @@
 import random
 import math
-import sys
 
 #meed a > b
 def gcd(a,b):
@@ -39,19 +38,21 @@ def EulerTheorem(r,m):
     inv = -1
     if(not EA(m,r)): return inv
     exp = []
-    factors = phiFactors
+    factors = phiFactors.copy()
     exp.append(1)
     i = 1
     phi = 1
     while(i < len(factors)):
         if(factors[i] == factors[i-1]):
             exp[i-1] += 1
-            factors[i].pop()
+            factors.pop(i)
         else:
             exp.append(1)
             phi *= (factors[i-1]**exp[i-1]- factors[i-1]**(exp[i-1]-1))
             i += 1
-    inv = r**phi % m
+    #gotta multiply by the last factor
+    phi *= (factors[i-1]**exp[i-1]- factors[i-1]**(exp[i-1]-1))
+    inv = r**(phi-1) % m
     return inv
 
 primeList = [2,3]
