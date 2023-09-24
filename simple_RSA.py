@@ -31,6 +31,29 @@ def findInv(r,m):
     inv = t + m
     return inv
 
+#Euler's Theroem 
+#a ^ phi(n) = 1 mod n  =>
+#a_inv = a^(phi(n)-1) mod n
+#phi(n) = PRODUCT(p^e - p^(e-1) ) where p is a prime factor of n and e is the exponent(or number of times it is a prime factor) 
+def EulerTheorem(r,m):
+    inv = -1
+    if(not EA(m,r)): return inv
+    exp = []
+    factors = phiFactors
+    exp.append(1)
+    i = 1
+    phi = 1
+    while(i < len(factors)):
+        if(factors[i] == factors[i-1]):
+            exp[i-1] += 1
+            factors[i].pop()
+        else:
+            exp.append(1)
+            phi *= (factors[i-1]**exp[i-1]- factors[i-1]**(exp[i-1]-1))
+            i += 1
+    inv = r**phi % m
+    return inv
+
 primeList = [2,3]
 
 def findNthPrimes(n):
@@ -46,13 +69,13 @@ def findNthPrimes(n):
     return primeList[-1]
 
 #uses phi n and the generated primes list to pick a value that is < phi-1
+phiFactors = []
+
 def pickPub(phi_n):
-    #find prime factors of %
-    i = 0
-    phiFactors = []
     # upper limit for prime factor for a number is the square root of the number 
     limit = math.sqrt(phi_n)
     num = phi_n
+    i = 0
     while(primeList[i] < limit): 
         if(num%primeList[i] == 0): 
             phiFactors.append(primeList[i])
@@ -76,11 +99,9 @@ def pickPub(phi_n):
     #options = the set of prime numbers up to phi not including the prime factors of phi
     return options[random.randint(0,len(options)-1)]
 
-
 #problem occurs when n is too small (less than 127 I THINK) 
 #results in decrypted message not being right in the cases
 #already tried adding back in n to the final decrypted integers to get the correct ascii value but its not 100%
-
 def encrypt(m, e, n):
     s = []
     for l in m:
@@ -106,9 +127,12 @@ if __name__=="__main__":
     q = findNthPrimes(q)
     n = p*q
     phi_n = (p-1)*(q-1)
+    
     e = pickPub(phi_n)
     assert gcd(e,phi_n) == 1
     d = findInv(e,phi_n)
+    assert EulerTheorem(e,phi_n) == d
+    assert d != -1
     assert e*d % phi_n == 1
 
     print("Public  Key = (",e,", ", n, ")")
@@ -116,5 +140,7 @@ if __name__=="__main__":
 
     c = encrypt(message,e,n)
     print(c)
-
-    print(decrypt(c,d,n))
+    
+    m_out = decrypt(c,d,n)
+    assert m_out == message
+    print(m_out)
