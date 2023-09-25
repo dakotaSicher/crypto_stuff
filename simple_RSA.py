@@ -29,7 +29,7 @@ def findInv(r,m):
     t = -int(m/r)
     while (q*m + t*r != 1):
         q += 1
-        t = -int(m*q/r)
+        t = - int(m*q/r)
 
     inv = t + m
     return inv
@@ -78,15 +78,16 @@ phiFactors = []
 
 def pickPub(phi_n):
     # upper limit for prime factor for a number is the square root of the number 
-    limit = math.sqrt(phi_n)
+    #limit = math.sqrt(phi_n)
     num = phi_n
     i = 0
-    while(primeList[i] < limit): 
+    while(primeList[i] < phi_n and num > 1): 
         if(num%primeList[i] == 0): 
             phiFactors.append(primeList[i])
             num = num/primeList[i]
         else: i += 1
-    #print(phiFactors)
+    #if(num > 1): phiFactors.append(num)
+    print(phiFactors)
     #easy answer is pick a prime number that is not a prime factor of Phi and less than phi
     #need to make sure we have all the primes up to phi
     while(primeList[-1] < phi_n):
@@ -96,7 +97,7 @@ def pickPub(phi_n):
     #any prime number that is not a prime factor of phi will do
     options = []
     j = 0
-    while(primeList[j] < phi_n):
+    while(primeList[j] < phi_n - 1):
         if primeList[j] not in phiFactors:
             options.append(primeList[j])
         j +=1
@@ -110,7 +111,7 @@ def pickPub(phi_n):
 def encrypt(m, e, n):
     s = []
     for l in m:
-        x = ord(l) 
+        x = ord(l) - ord('a')
         y = x**e % n
         s.append(y)
     return s
@@ -119,7 +120,7 @@ def decrypt(c, d, n):
     s = ""
     for y in c:
         x = y**d % n
-        s = s + chr(x)
+        s = s + chr(x + ord('a'))
     return s
 
 
