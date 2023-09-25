@@ -1,3 +1,7 @@
+#Dakota Sicher
+#CS 47205
+#pseudo RSA like encrytion using block size 1 char
+
 import random
 import math
 
@@ -102,11 +106,11 @@ def pickPub(phi_n):
 
 #problem occurs when n is too small (less than 127 I THINK) 
 #results in decrypted message not being right in the cases
-#already tried adding back in n to the final decrypted integers to get the correct ascii value but its not 100%
+#already tried adding back in n to the final decrypted integers to get the correct ascii value but it doesn't seem to work in all cases
 def encrypt(m, e, n):
     s = []
     for l in m:
-        x = ord(l)
+        x = ord(l) 
         y = x**e % n
         s.append(y)
     return s
@@ -115,8 +119,7 @@ def decrypt(c, d, n):
     s = ""
     for y in c:
         x = y**d % n
-        if(n<127): s = s+chr(x+n)
-        else: s = s + chr(x)
+        s = s + chr(x)
     return s
 
 
