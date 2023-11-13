@@ -1,7 +1,10 @@
 import tkinter as tk
+from cryptography.hazmat.primitives import hashes
+
+
 
 class loginGui:
-    def __init__(self, loginCheck) -> None:
+    def __init__(self) -> None:
         self.window = tk.Tk()
         #self.action = loginCheck
 
@@ -26,34 +29,45 @@ class loginGui:
 
 
 class setMasterGui:
-    def __init__(self, loginSet) -> None:
+    def __init__(self) -> None:
         self.window = tk.Tk()
         #self.action = loginSet
 
         self.Greeting = tk.Label(master= self.window, text = "Welcome")
         self.Greeting.pack()
 
-        self.Text1 = tk.Label(master=self.window, text="Enter new Master password")
-        self.Text1.pack()
+        self.Text = tk.Label(master=self.window, text="Enter new Master password",)
+        self.Text.pack()
 
-        self.Text2 = tk.Label(master=self.window, text="Confrim new master password")
         self.noMatch = tk.Label(master=self.window, text = "passwords did not match, please try again")
-
-        self.Entry = tk.Entry(master=self.window)
+        
+        self.pwd_var = tk.StringVar()
+        self.Entry = tk.Entry(master=self.window,show="*",textvariable=self.pwd_var,)
         self.Entry.pack()
 
-        self.Button = tk.Button(master=self.window,text="Submit", command=self.setMaster)
+        self.Button = tk.Button(master=self.window,text="Submit", command=self.get_first)
         self.Button.pack()
 
         self.window.mainloop()
     
-    def setMaster():
-        #accept first entry
-        #accept second entry
-        #compare first and second 
-        #repeate if not matching
-        #once matching, hash and store
-        pass
+    def get_first(self):
+        self.first = self.pwd_var.get()
+        self.Entry.delete(0,tk.END)
+        self.Button["command"] = self.get_second
+        self.Text["text"] = "Confirm password"
+
+    def get_second(self):
+        self.second = self.pwd_var.get()
+        if(self.second != self.first):
+            self.noMatch.pack()
+            self.Entry.delete(0,tk.END)
+            self.Button["command"] = self.get_first
+            self.Text["text"] = "Enter new Master password"
+            return
+      
+        self.noMatch.pack_forget()
+        tk.Label(master=self.window,text = "new password saved").pack()
+
 
 
 class mainView:
@@ -65,3 +79,6 @@ class mainView:
 
     def copyToClip():
         pass
+
+
+setMasterGui()

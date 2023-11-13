@@ -22,7 +22,6 @@ userPass = None
 masterHash = None
 userHash = None
 
-
 #step 0: check if master password is set or set for first time
 def masterExists():
     if(path.isfile('./master.txt') and stat('./master.txt').st_size != 0):
@@ -34,12 +33,7 @@ def getMaster():
         file = open('./master.txt','rb')
         return bytearray(file.read())
 
-def setMaster():
-    while True:
-        p1 = input("enter your new master password: ")
-        p2 = input("confirm master password: ")
-        if(p1 == p2): 
-            break
+def setMaster(p1):
     file = open('./master.txt','wb')
     h = hashes.Hash(hashes.SHA256())
     h.update(p1.encode())
@@ -93,9 +87,9 @@ if __name__ == "__main__":
     #retrieve hashed master password from file
     #or if none exists get new master password from user, hash and store
     if(masterExists()):
-        loginGui(getMaster)
+        loginGui()
     else:
-        setMasterGui(setMaster)
+        setMasterGui()
         
 
 

@@ -160,4 +160,4 @@ cython_debug/
 #.idea/
 
 master.txt
-myPswds.db
+credentials.db
