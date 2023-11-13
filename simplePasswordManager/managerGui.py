@@ -1,5 +1,6 @@
 import tkinter as tk
 from cryptography.hazmat.primitives import hashes
+import time
 
 
 
@@ -63,10 +64,11 @@ class setMasterGui:
             self.Entry.delete(0,tk.END)
             self.Button["command"] = self.get_first
             self.Text["text"] = "Enter new Master password"
-            return
-      
-        self.noMatch.pack_forget()
-        tk.Label(master=self.window,text = "new password saved").pack()
+        else:
+            self.noMatch.pack_forget()
+            tk.Label(master=self.window,text = "new password saved").pack()
+        #time.sleep(4)
+        #self.window.destroy()
 
 
 
