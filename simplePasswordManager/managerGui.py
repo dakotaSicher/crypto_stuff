@@ -1,13 +1,15 @@
 import tkinter as tk
-from cryptography.hazmat.primitives import hashes
+#from cryptography.hazmat.primitives import hashes
 import time
+from passwordManager import getMaster,setMaster, getUserHash,masterExists
 
 
 
 class loginGui:
     def __init__(self) -> None:
         self.window = tk.Tk()
-        #self.action = loginCheck
+        self.window.title("LOGIN")
+        self.window.geometry('250x100')
 
         self.Greeting = tk.Label(master=self.window, text="Welcome")
         self.Greeting.pack()
@@ -15,14 +17,31 @@ class loginGui:
         self.Text = tk.Label(master=self.window,text ="Enter Master Password")
         self.Text.pack()
 
-        self.Entry = tk.Entry(master=self.window)
+        self.pwd_var = tk.StringVar()
+        self.Entry = tk.Entry(master=self.window,show="*",textvariable=self.pwd_var,)
         self.Entry.pack()
 
         self.Button = tk.Button(master=self.window,text="Login", command=self.login)
         self.Button.pack()
 
+        self.noMatch = tk.Label(master=self.window, text = "password is incorrect, try again")
 
-    def login():
+        self.masterHash = getMaster()
+        self.window.mainloop()
+
+    def login(self):
+        self.userpass = self.pwd_var.get()
+        self.userhash = getUserHash(self.userpass)
+        if(self.userhash != self.masterHash):
+            self.noMatch.pack()
+            self.Entry.delete(0,tk.END)
+        else:
+            self.noMatch.pack_forget()
+            tk.Label(master=self.window,text = "success").pack()
+            time.sleep(1)
+            self.window.destroy()
+
+
         #retrieve masterHash from file
         #hash entered password
         #compare to hash from file
@@ -32,7 +51,8 @@ class loginGui:
 class setMasterGui:
     def __init__(self) -> None:
         self.window = tk.Tk()
-        #self.action = loginSet
+        self.window.title("New Passoword")
+        self.window.geometry('250x100')
 
         self.Greeting = tk.Label(master= self.window, text = "Welcome")
         self.Greeting.pack()
@@ -67,8 +87,10 @@ class setMasterGui:
         else:
             self.noMatch.pack_forget()
             tk.Label(master=self.window,text = "new password saved").pack()
-        #time.sleep(4)
-        #self.window.destroy()
+            setMaster(self.second)
+            self.userpass = self.second
+            time.sleep(1)
+            self.window.destroy()
 
 
 
@@ -76,11 +98,27 @@ class mainView:
     def __init__(self) -> None:
         
         self.window =tk.Tk()
-
+        self.window.geometry('500x500')
+        self.window.title("My password Manager")
         self.window.mainloop()
+
+    def filterView():
+        pass
 
     def copyToClip():
         pass
 
+    def showPassword():
+        pass
 
-setMasterGui()
+
+
+login = None
+if(masterExists()):
+    login = loginGui()
+else:
+    login = setMasterGui()
+userpass = login.userpass
+del login
+print("login success")
+mainView()

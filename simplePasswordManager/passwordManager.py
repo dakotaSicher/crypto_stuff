@@ -1,6 +1,6 @@
-import tkinter as tk
+
 from passwordDB import PasswordDatabase
-from managerGui import loginGui, setMasterGui
+
 import os
 from os import path, stat
 
@@ -39,6 +39,7 @@ def setMaster(p1):
     h.update(p1.encode())
     p = h.finalize() 
     file.write(p)  
+    print("new password saved")
     return p
 
 #step 1: enter master password
@@ -86,10 +87,7 @@ def decryptPasswords(ct):
 if __name__ == "__main__":
     #retrieve hashed master password from file
     #or if none exists get new master password from user, hash and store
-    if(masterExists()):
-        loginGui()
-    else:
-        setMasterGui()
+
         
 
 
