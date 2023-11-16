@@ -1,7 +1,3 @@
-
-from passwordDB import PasswordDatabase
-
-import os
 from os import path, stat
 
 from cryptography.fernet import Fernet
@@ -9,10 +5,6 @@ from cryptography.hazmat.primitives import hashes, padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-import time
 
 
 iv = b"\x8e\x8d\xaa\x95a^*7\x19\xf3\xdd'\x07\xd40\xb2"
@@ -60,7 +52,7 @@ def genKeyFromMaster(pwd):
     key = kdf.derive(pwd.encode())
     return key
 
-def encryptPasswords(pt):
+def encryptPasswords(pt, key):
     padder = padding.PKCS7(256).padder()
     padded_password = padder.update(pt.encode())
     padded_password += padder.finalize()
@@ -69,7 +61,7 @@ def encryptPasswords(pt):
     ct = encryptor.update(padded_password) + encryptor.finalize()
     return ct
     
-def decryptPasswords(ct):
+def decryptPasswords(ct, key):
     cipher = Cipher(algorithms.AES256(key), modes.CBC(iv))
     decryptor = cipher.decryptor()
     dt = decryptor.update(ct) + decryptor.finalize()
@@ -83,47 +75,3 @@ def decryptPasswords(ct):
 
 
 
-
-if __name__ == "__main__":
-    #retrieve hashed master password from file
-    #or if none exists get new master password from user, hash and store
-
-        
-
-
-
-
-    #user inputs password to login
-    #userPass = input("enter your password: ")
-    #userHash = getUserHash(userPass)
-    #print(masterHash.hex())
-    #print(userHash.hex())
-    #compare stored master password hash with user entered password hash
-    if(userHash != masterHash):
-        print("pasword does not match")
-        time.sleep(2)
-        exit
-    else: 
-        print("welcome back")
-    
-    key = genKeyFromMaster(userPass)
-    pwmgr = PasswordDatabase()
-    pwmgr.connect_or_create()
-
-    site = "web.site"
-    user = "user1234"
-    dumbp = "pass1234"
-
-    #ct = encryptPasswords(dumbp)
-    #pwmgr.newCred(site,user,ct)
-
-
-    cred = pwmgr.getCred(site)
-
-    print(cred)
-    #print(cred[1])
-    
-    
-
-    pwmgr.closeConn()
-    time.sleep(5)

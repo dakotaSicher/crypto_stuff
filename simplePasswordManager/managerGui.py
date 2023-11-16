@@ -1,8 +1,7 @@
 import tkinter as tk
-#from cryptography.hazmat.primitives import hashes
 import time
-from passwordManager import getMaster,setMaster, getUserHash,masterExists
-from passwordDB import PasswordDatabase
+from PMUtils import getMaster,setMaster, getUserHash,masterExists
+from PMDB import PasswordDatabase
 
 
 class loginGui:
