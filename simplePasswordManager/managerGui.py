@@ -17,7 +17,7 @@ class loginGui:
         self.Text.pack()
 
         self.pwd_var = tk.StringVar()
-        self.Entry = tk.Entry(master=self.window,show="*",textvariable=self.pwd_var,)
+        self.Entry = tk.Entry(master=self.window,show="*",textvariable=self.pwd_var)
         self.Entry.pack()
 
         self.Button = tk.Button(master=self.window,text="Login", command=self.login)
@@ -25,7 +25,7 @@ class loginGui:
 
         self.noMatch = tk.Label(master=self.window, text = "password is incorrect, try again")
 
-        self.window.bind("<Return>", self.login)
+        self.Entry.bind("<Return>", self.login)
         self.masterHash = getMaster()
         self.window.mainloop()
 
@@ -44,7 +44,7 @@ class loginGui:
         #retrieve masterHash from file
         #hash entered password
         #compare to hash from file
-        pass
+
 
 
 class setMasterGui:
@@ -62,20 +62,20 @@ class setMasterGui:
         self.noMatch = tk.Label(master=self.window, text = "passwords did not match, please try again")
         
         self.pwd_var = tk.StringVar()
-        self.Entry = tk.Entry(master=self.window,show="*",textvariable=self.pwd_var,)
+        self.Entry = tk.Entry(master=self.window,show="*",textvariable=self.pwd_var)
         self.Entry.pack()
 
         self.Button = tk.Button(master=self.window,text="Submit", command=self.get_first)
         self.Button.pack()
 
-        self.window.bind("<Return>", self.get_first)
+        self.Entry.bind("<Return>", self.get_first)
         self.window.mainloop()
     
     def get_first(self,event=None):
         self.first = self.pwd_var.get()
         self.Entry.delete(0,tk.END)
         self.Button["command"] = self.get_second
-        self.window.bind("<Return>", self.get_second)
+        self.Entry.bind("<Return>", self.get_second)
         self.Text["text"] = "Confirm password"
 
     def get_second(self,event=None):
@@ -84,7 +84,7 @@ class setMasterGui:
             self.noMatch.pack()
             self.Entry.delete(0,tk.END)
             self.Button["command"] = self.get_first
-            self.window.bind("<Return>", self.get_first)
+            self.Entry.bind("<Return>", self.get_first)
             self.Text["text"] = "Enter new Master password"
         else:
             self.noMatch.pack_forget()
@@ -93,10 +93,13 @@ class setMasterGui:
             self.userpass = self.second
             self.window.after(1000,self.window.destroy)
 
+
 class entryPopup:
-    def __init__(self) -> None:
-        self.pop= tk.Tk()
+    def __init__(self,Master) -> None:
+        self.master= Master
+        self.pop= tk.Toplevel(master=self.master)
         self.pop.title("Add New Credentials")
+        self.pop.geometry("200x100")
         
         tk.Label(master=self.pop,text="Website:").grid(row=0,column=0,sticky= 'E')
         self.site = tk.StringVar()
@@ -111,22 +114,23 @@ class entryPopup:
 
         tk.Label(master=self.pop,text="Password:").grid(row=2,column=0,sticky='E')
         self.password = tk.StringVar()
-        self.passwordEntry = tk.Entry(master=self.pop,textvariable=self.password,show='*')
+        self.passwordEntry = tk.Entry(master=self.pop,show='*',textvariable=self.password)
         self.passwordEntry.grid(row=2,column=1)
 
         tk.Button(master=self.pop,text="confirm",command=self.saveCred).grid(row=3,column=0,columnspan=2)
 
         self.pop.bind("<Return>", self.saveCred)
-        self.pop.mainloop()
+        #self.pop.mainloop()
 
     def saveCred(self,event=None):
+        print(self.site.get(),self.user.get(),self.password.get())
         self.s = self.siteEntry.get()
         self.u = self.userEntry.get()
         self.p = self.passwordEntry.get()
-        print(len(self.s),len(self.u),len(self.p))
+        #print(self.s,self.u,self.p)
         self.pop.after(500,self.pop.destroy)
 
-    def genRandomPass():
+    def genRandomPass(self):
         pass
 
 
@@ -158,15 +162,13 @@ class mainView:
         pass
     
     def addNewCred(self):
-        self.addform = entryPopup()
-        print(len(self.addform.s))
 
+        self.addform = entryPopup(self.window)
+        print("im back")
+        print(self.addform.s)
         del self.addform
 
  
-
-        
-
     def deleteCred(self):
         pass
 
@@ -185,7 +187,7 @@ if(masterExists()):
 else:
     login = setMasterGui()
 userpass = login.userpass
-#print(userpass)
+print(userpass)
 del login
 #print("login success")
 mydb = PasswordDatabase()
