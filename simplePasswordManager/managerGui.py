@@ -2,7 +2,7 @@ import tkinter as tk
 #from cryptography.hazmat.primitives import hashes
 import time
 from passwordManager import getMaster,setMaster, getUserHash,masterExists
-
+from passwordDB import PasswordDatabase
 
 
 class loginGui:
@@ -92,18 +92,70 @@ class setMasterGui:
             time.sleep(1)
             self.window.destroy()
 
+class entryPopup:
+    def __init__(self) -> None:
+        self.window= tk.Tk()
+        self.window.title("Add New Credentials")
+        
+        tk.Label(self.window,text="Website:").grid(row=0,column=0,sticky= 'E')
+        self.site = tk.StringVar()
+        tk.Entry(self.window,textvariable=self.site).grid(row=0,column=1)
+
+
+        tk.Label(self.window,text="User:").grid(row=1,column=0,sticky='E')
+        self.user = tk.StringVar()
+        tk.Entry(self.window,textvariable=self.user).grid(row=1,column=1)
+
+        tk.Label(self.window,text="Password:").grid(row=2,column=0,sticky='E')
+        self.password = tk.StringVar()
+        tk.Entry(self.window,textvariable=self.password,show='*').grid(row=2,column=1)
+
+        tk.Button(master=self.window,text="confirm",command=self.saveCred).grid(row=3,column=0,columnspan=2)
+
+        self.window.mainloop()
+
+    def saveCred(self):
+        self.s = self.site.get()
+        self.u = self.user.get()
+        self.p = self.password.get()
+        print(self.s,self.u,self.p)
+        self.window.destroy()
 
 
 class mainView:
-    def __init__(self) -> None:
-        
+    def __init__(self,db) -> None:
+        self.db = db
+
         self.window =tk.Tk()
         self.window.geometry('500x500')
         self.window.title("My password Manager")
+
+        self.searchStr = tk.StringVar()
+        tk.Button(master=self.window,text="add",command=self.addNewCred).grid(row=0,column=0,padx=2)
+        tk.Entry(self.window, textvariable=self.searchStr).grid(row=0,column=2,padx=2)
+        tk.Button(master=self.window,text="Find",command=self.filterView).grid(row=0,column=3,padx=2)
+
+        tk.Label(master=self.window,text="Website:" ).grid(row=1,column=0,padx=2)
+        tk.Label(master=self.window,text="username:" ).grid(row=1,column=1,padx=2)
+        tk.Label(master=self.window,text="password:" ).grid(row=1,column=2,padx=2,columnspan=2)
+
         self.window.mainloop()
 
-    def filterView():
+    def filterView(self):
         pass
+    
+    def addNewCred(self):
+        addform = entryPopup()
+        ep = addform.p 
+        dbentry = tuple(addform.s,addform.u,ep)
+        for x in dbentry:
+            print(x)
+
+        
+
+    def deleteCred(self):
+        pass
+
 
     def copyToClip():
         pass
@@ -121,4 +173,6 @@ else:
 userpass = login.userpass
 del login
 print("login success")
-mainView()
+mydb = PasswordDatabase()
+mydb.connect_or_create()
+mainView(mydb)

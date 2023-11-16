@@ -34,6 +34,12 @@ class PasswordDatabase:
         self.cur.execute('SELECT * FROM LOGIN WHERE website = ?',[site,])
         #returns a tuple
         return tuple(self.cur.fetchone())
+    
+    def getFilteredList(self, search):
+        self.cur.execute('SELECT * FROM LOGIN WHERE website = ?',['%'+search+'%',])
+        #returns a list of tuples
+        return self.cur.fetchall()
+
         
         
 
