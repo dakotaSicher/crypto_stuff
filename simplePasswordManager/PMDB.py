@@ -29,6 +29,7 @@ class PasswordDatabase:
 
     def newCred(self,site,login,encrypted_password):
         self.cur.execute('INSERT INTO LOGIN VALUES(?,?,?)',[site,login,encrypted_password])
+        print("added new cred")
 
     def getCred(self,site):
         self.cur.execute('SELECT * FROM LOGIN WHERE website = ?',[site,])

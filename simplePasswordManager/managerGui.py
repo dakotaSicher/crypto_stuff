@@ -1,6 +1,6 @@
 import tkinter as tk
 import time
-from PMUtils import getMaster,setMaster, getUserHash,masterExists
+from PMUtils import *
 from PMDB import PasswordDatabase
 
 
@@ -120,14 +120,13 @@ class entryPopup:
         tk.Button(master=self.pop,text="confirm",command=self.saveCred).grid(row=3,column=0,columnspan=2)
 
         self.pop.bind("<Return>", self.saveCred)
-        #self.pop.mainloop()
+        self.pop.wait_window()
 
     def saveCred(self,event=None):
-        print(self.site.get(),self.user.get(),self.password.get())
         self.s = self.siteEntry.get()
         self.u = self.userEntry.get()
         self.p = self.passwordEntry.get()
-        #print(self.s,self.u,self.p)
+        print(self.s,self.u,self.p)
         self.pop.after(500,self.pop.destroy)
 
     def genRandomPass(self):
@@ -135,15 +134,16 @@ class entryPopup:
 
 
 class mainView:
-    def __init__(self,db) -> None:
+    def __init__(self,db,key) -> None:
         self.db = db
+        self.key = key
 
         self.window =tk.Tk()
         self.window.geometry('500x500')
         self.window.title("My password Manager")
 
         self.searchStr = tk.StringVar()
-        self.searchStr.trace_add("write",self.filterView)
+        #self.searchStr.trace_add("write",self.filterView)
         tk.Button(master=self.window,text="add",command=self.addNewCred).grid(row=0,column=0,padx=2)
         tk.Entry(self.window, textvariable=self.searchStr).grid(row=0,column=2,padx=2)
         tk.Button(master=self.window,text="Find",command=self.filterView).grid(row=0,column=3,padx=2)
@@ -154,19 +154,17 @@ class mainView:
 
         self.window.mainloop()
 
-    def filterView(self,var,index,mode):
-        search = "{}".format(self.searchStr.get())
-        print(search)
-        self.displayList = self.db.getFilteredList(search)
-        print(self.displayList)
-        pass
+    def filterView(self):
+        #search = "{}".format(self.searchStr.get())
+        search = self.searchStr.get()
+        #print(search)
+        self.db.getFilteredList(search)
     
     def addNewCred(self):
-
-        self.addform = entryPopup(self.window)
-        print("im back")
-        print(self.addform.s)
-        del self.addform
+        addform = entryPopup(self.window)
+        ep = encryptPasswords(addform.p,self.key)        
+        self.db.newCred(addform.s,addform.u,ep)
+        del addform
 
  
     def deleteCred(self):
@@ -187,9 +185,8 @@ if(masterExists()):
 else:
     login = setMasterGui()
 userpass = login.userpass
-print(userpass)
 del login
-#print("login success")
 mydb = PasswordDatabase()
 mydb.connect_or_create()
-app = mainView(mydb)
+key = genKeyFromMaster(userpass)
+app = mainView(mydb,key)

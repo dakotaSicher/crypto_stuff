@@ -10,9 +10,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 iv = b"\x8e\x8d\xaa\x95a^*7\x19\xf3\xdd'\x07\xd40\xb2"
 mysalt = b'\x7f\xd7\x8dkK\xaf\x02{5\xfc\x02\xf9\xcc}M.'
 
-userPass = None
-masterHash = None
-userHash = None
+
 
 #step 0: check if master password is set or set for first time
 def masterExists():
