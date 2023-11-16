@@ -10,9 +10,9 @@ class PasswordDatabase:
     def connect_or_create(self):
         try:
             self.conn = sqlite3.connect('file:' + self.file + '?mode=rw', uri=True)
-            print("connecting")
+            #print("connecting")
         except sqlite3.OperationalError as  err:
-            print("db does not exist, creating it")
+            #print("db does not exist, creating it")
             self.conn = sqlite3.connect(self.file)
         self.cur = self.conn.cursor()
         self.cur.execute('''CREATE TABLE if not exists LOGIN

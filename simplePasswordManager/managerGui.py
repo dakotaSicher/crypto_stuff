@@ -25,10 +25,11 @@ class loginGui:
 
         self.noMatch = tk.Label(master=self.window, text = "password is incorrect, try again")
 
+        self.window.bind("<Return>", self.login)
         self.masterHash = getMaster()
         self.window.mainloop()
 
-    def login(self):
+    def login(self, event=None):
         self.userpass = self.pwd_var.get()
         self.userhash = getUserHash(self.userpass)
         if(self.userhash != self.masterHash):
@@ -37,8 +38,7 @@ class loginGui:
         else:
             self.noMatch.pack_forget()
             tk.Label(master=self.window,text = "success").pack()
-            time.sleep(1)
-            self.window.destroy()
+            self.window.after(1000,self.window.destroy)
 
 
         #retrieve masterHash from file
@@ -68,57 +68,66 @@ class setMasterGui:
         self.Button = tk.Button(master=self.window,text="Submit", command=self.get_first)
         self.Button.pack()
 
+        self.window.bind("<Return>", self.get_first)
         self.window.mainloop()
     
-    def get_first(self):
+    def get_first(self,event=None):
         self.first = self.pwd_var.get()
         self.Entry.delete(0,tk.END)
         self.Button["command"] = self.get_second
+        self.window.bind("<Return>", self.get_second)
         self.Text["text"] = "Confirm password"
 
-    def get_second(self):
+    def get_second(self,event=None):
         self.second = self.pwd_var.get()
         if(self.second != self.first):
             self.noMatch.pack()
             self.Entry.delete(0,tk.END)
             self.Button["command"] = self.get_first
+            self.window.bind("<Return>", self.get_first)
             self.Text["text"] = "Enter new Master password"
         else:
             self.noMatch.pack_forget()
             tk.Label(master=self.window,text = "new password saved").pack()
             setMaster(self.second)
             self.userpass = self.second
-            time.sleep(1)
-            self.window.destroy()
+            self.window.after(1000,self.window.destroy)
 
 class entryPopup:
     def __init__(self) -> None:
-        self.window= tk.Tk()
-        self.window.title("Add New Credentials")
+        self.pop= tk.Tk()
+        self.pop.title("Add New Credentials")
         
-        tk.Label(self.window,text="Website:").grid(row=0,column=0,sticky= 'E')
+        tk.Label(master=self.pop,text="Website:").grid(row=0,column=0,sticky= 'E')
         self.site = tk.StringVar()
-        tk.Entry(self.window,textvariable=self.site).grid(row=0,column=1)
+        self.siteEntry = tk.Entry(master=self.pop,textvariable=self.site)
+        self.siteEntry.grid(row=0,column=1)
 
 
-        tk.Label(self.window,text="User:").grid(row=1,column=0,sticky='E')
+        tk.Label(master=self.pop,text="User:").grid(row=1,column=0,sticky='E')
         self.user = tk.StringVar()
-        tk.Entry(self.window,textvariable=self.user).grid(row=1,column=1)
+        self.userEntry = tk.Entry(master=self.pop,textvariable=self.user)
+        self.userEntry.grid(row=1,column=1)
 
-        tk.Label(self.window,text="Password:").grid(row=2,column=0,sticky='E')
+        tk.Label(master=self.pop,text="Password:").grid(row=2,column=0,sticky='E')
         self.password = tk.StringVar()
-        tk.Entry(self.window,textvariable=self.password,show='*').grid(row=2,column=1)
+        self.passwordEntry = tk.Entry(master=self.pop,textvariable=self.password,show='*')
+        self.passwordEntry.grid(row=2,column=1)
 
-        tk.Button(master=self.window,text="confirm",command=self.saveCred).grid(row=3,column=0,columnspan=2)
+        tk.Button(master=self.pop,text="confirm",command=self.saveCred).grid(row=3,column=0,columnspan=2)
 
-        self.window.mainloop()
+        self.pop.bind("<Return>", self.saveCred)
+        self.pop.mainloop()
 
-    def saveCred(self):
-        self.s = self.site.get()
-        self.u = self.user.get()
-        self.p = self.password.get()
-        print(self.s,self.u,self.p)
-        self.window.destroy()
+    def saveCred(self,event=None):
+        self.s = self.siteEntry.get()
+        self.u = self.userEntry.get()
+        self.p = self.passwordEntry.get()
+        print(len(self.s),len(self.u),len(self.p))
+        self.pop.after(500,self.pop.destroy)
+
+    def genRandomPass():
+        pass
 
 
 class mainView:
@@ -130,6 +139,7 @@ class mainView:
         self.window.title("My password Manager")
 
         self.searchStr = tk.StringVar()
+        self.searchStr.trace_add("write",self.filterView)
         tk.Button(master=self.window,text="add",command=self.addNewCred).grid(row=0,column=0,padx=2)
         tk.Entry(self.window, textvariable=self.searchStr).grid(row=0,column=2,padx=2)
         tk.Button(master=self.window,text="Find",command=self.filterView).grid(row=0,column=3,padx=2)
@@ -140,15 +150,20 @@ class mainView:
 
         self.window.mainloop()
 
-    def filterView(self):
+    def filterView(self,var,index,mode):
+        search = "{}".format(self.searchStr.get())
+        print(search)
+        self.displayList = self.db.getFilteredList(search)
+        print(self.displayList)
         pass
     
     def addNewCred(self):
-        addform = entryPopup()
-        ep = addform.p 
-        dbentry = tuple(addform.s,addform.u,ep)
-        for x in dbentry:
-            print(x)
+        self.addform = entryPopup()
+        print(len(self.addform.s))
+
+        del self.addform
+
+ 
 
         
 
@@ -170,8 +185,9 @@ if(masterExists()):
 else:
     login = setMasterGui()
 userpass = login.userpass
+#print(userpass)
 del login
-print("login success")
+#print("login success")
 mydb = PasswordDatabase()
 mydb.connect_or_create()
-mainView(mydb)
+app = mainView(mydb)
