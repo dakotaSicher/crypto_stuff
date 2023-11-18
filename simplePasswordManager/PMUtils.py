@@ -5,14 +5,9 @@ from cryptography.hazmat.primitives import hashes, padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-
-
 iv = b"\x8e\x8d\xaa\x95a^*7\x19\xf3\xdd'\x07\xd40\xb2"
 mysalt = b'\x7f\xd7\x8dkK\xaf\x02{5\xfc\x02\xf9\xcc}M.'
 
-
-
-#step 0: check if master password is set or set for first time
 def masterExists():
     if(path.isfile('./master.txt') and stat('./master.txt').st_size != 0):
         return True
@@ -32,14 +27,11 @@ def setMaster(p1):
     print("new password saved")
     return p
 
-#step 1: enter master password
 def getUserHash(userPass):
     h = hashes.Hash(hashes.SHA256())
     h.update(userPass.encode())
     return h.finalize()
      
-
-#step 3: generate key from master password
 def genKeyFromMaster(pwd):
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
@@ -63,11 +55,9 @@ def decryptPasswords(ct, key):
     cipher = Cipher(algorithms.AES256(key), modes.CBC(iv))
     decryptor = cipher.decryptor()
     dt = decryptor.update(ct) + decryptor.finalize()
-    #print(dt)
     unpadder = padding.PKCS7(256).unpadder()
     pt = unpadder.update(dt)
     pt += unpadder.finalize()
-    #print(plainpw.decode())
     return pt.decode()
 
 

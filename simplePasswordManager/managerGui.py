@@ -1,7 +1,7 @@
 import tkinter as tk
+from functools import partial
 from PMUtils import *
 from PMDB import PasswordDatabase
-from functools import partial
 
 
 class loginGui:
