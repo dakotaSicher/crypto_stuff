@@ -40,11 +40,4 @@ class PasswordDatabase:
         return self.cur.fetchall()
 
 
-        
-        
-
-
-    
-
-
 #SELECT name FROM sqlite_master WHERE type='table' AND name='yourTableName';
