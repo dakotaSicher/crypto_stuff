@@ -1,5 +1,7 @@
 import tkinter as tk
 from functools import partial
+import pyperclip
+
 from PMUtils import *
 from PMDB import PasswordDatabase
 
@@ -207,7 +209,7 @@ class mainView:
             self.viewListUser.append(tk.Entry(master=self.viewFrame,textvariable=user,state="readonly"))
             self.viewListUser[x].grid(row=x+1,column=1,padx=2)
 
-            self.viewListPassShow.append(tk.Button(master=self.viewFrame,text="Show",command= partial(self.showPassword,cp=self.viewList[x][2]))) 
+            self.viewListPassShow.append(tk.Button(master=self.viewFrame,text="Show",command=partial(self.showPassword,cp=self.viewList[x][2]))) 
             self.viewListPassShow[x].grid(row=x+1,column=2,padx=2)
 
             self.viewListPassCopy.append(tk.Button(master=self.viewFrame,text="Copy",command=partial(self.copyToClip,cp=self.viewList[x][2]))) 
@@ -225,10 +227,12 @@ class mainView:
         self.filterView()
  
     def deleteCred(self, site):
-        pass
+        
+        self.filterView()
 
     def copyToClip(self, cp):
-        pass
+        pp = decryptPasswords(cp,self.key)
+        pyperclip.copy(pp)
 
     def showPassword(self,cp):
         pp = decryptPasswords(cp,self.key)
@@ -244,10 +248,10 @@ else:
     login = setMasterGui()
 userpass = login.userpass
 del login
+
 mydb = PasswordDatabase()
 mydb.connect_or_create()
-#mydb.showLogin()
 key = genKeyFromMaster(userpass)
-app = mainView(mydb,key)
 
+app = mainView(mydb,key)
 mydb.closeConn()
