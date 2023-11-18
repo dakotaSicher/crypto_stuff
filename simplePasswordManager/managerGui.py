@@ -2,6 +2,7 @@ import tkinter as tk
 import time
 from PMUtils import *
 from PMDB import PasswordDatabase
+from functools import partial
 
 
 class loginGui:
@@ -44,8 +45,6 @@ class loginGui:
         #retrieve masterHash from file
         #hash entered password
         #compare to hash from file
-
-
 
 class setMasterGui:
     def __init__(self) -> None:
@@ -93,7 +92,6 @@ class setMasterGui:
             self.userpass = self.second
             self.window.after(1000,self.window.destroy)
 
-
 class entryPopup:
     def __init__(self,Master) -> None:
         self.master= Master
@@ -126,15 +124,26 @@ class entryPopup:
         self.s = self.siteEntry.get()
         self.u = self.userEntry.get()
         self.p = self.passwordEntry.get()
-        print(self.s,self.u,self.p)
+        #print(self.s,self.u,self.p)
         self.pop.after(500,self.pop.destroy)
 
     def genRandomPass(self):
         pass
 
+class showPasswordPopup:
+    def __init__(self,Master,pw) -> None:
+        self.master= Master
+        self.pop= tk.Toplevel(master=self.master)
+        self.pop.title("show Passoord")
+        self.pop.geometry("200x100")
+
+        password = tk.StringVar()
+        password.set(pw)
+        tk.Entry(master=self.pop,textvariable=password, state="readonly" ).pack()
+        self.pop.wait_window()
 
 class mainView:
-    def __init__(self,db,key) -> None:
+    def __init__(self,db:PasswordDatabase,key) -> None:
         self.db = db
         self.key = key
 
@@ -143,39 +152,89 @@ class mainView:
         self.window.title("My password Manager")
 
         self.searchStr = tk.StringVar()
-        #self.searchStr.trace_add("write",self.filterView)
-        tk.Button(master=self.window,text="add",command=self.addNewCred).grid(row=0,column=0,padx=2)
+        self.searchStr.trace_add("write",self.filterView)
+        tk.Button(master=self.window,text="add",command=self.addCred).grid(row=0,column=0,padx=2)
         tk.Entry(self.window, textvariable=self.searchStr).grid(row=0,column=2,padx=2)
         tk.Button(master=self.window,text="Find",command=self.filterView).grid(row=0,column=3,padx=2)
+    
+        self.viewFrame = tk.Frame(master=self.window)
+        self.viewFrame.grid(row=1,column=0,columnspan=4,padx=2)
+        tk.Label(master=self.viewFrame,text="Website:").grid(row=0,column=0,padx=2,sticky='W')
+        tk.Label(master=self.viewFrame,text="username:" ).grid(row=0,column=1,padx=2,sticky='W')
+        tk.Label(master=self.viewFrame,text="password:" ).grid(row=0,column=2,padx=2,columnspan=2,sticky="W")
 
-        tk.Label(master=self.window,text="Website:" ).grid(row=1,column=0,padx=2)
-        tk.Label(master=self.window,text="username:" ).grid(row=1,column=1,padx=2)
-        tk.Label(master=self.window,text="password:" ).grid(row=1,column=2,padx=2,columnspan=2)
+        self.viewList = []
+        self.viewListSite:list[tk.Text] = []
+        self.viewListUser:list[tk.Entry] = []
+        self.viewListPassShow:list[tk.Button] = []
+        self.viewListPassCopy:list[tk.Button] = []
+        self.viewListDel:list[tk.Button] = []
 
+        self.searchStr.set("")
         self.window.mainloop()
 
-    def filterView(self):
-        #search = "{}".format(self.searchStr.get())
-        search = self.searchStr.get()
+    def filterView(self,var=None, index=None, mode=None):
+        search = "{}".format(self.searchStr.get())
+        #search = self.searchStr.get()
         #print(search)
-        self.db.getFilteredList(search)
+        for x in self.viewListSite:
+            x.destroy()
+        self.viewListSite.clear()
+        for x in self.viewListUser:
+            x.destroy()
+        self.viewListUser.clear()
+        for x in self.viewListPassCopy:
+            x.destroy()
+        self.viewListPassCopy.clear()
+        for x in self.viewListPassShow:
+            x.destroy()
+        self.viewListPassShow.clear()
+        for x in self.viewListDel:
+            x.destroy()
+        self.viewListDel.clear()
+
+        self.viewList = self.db.getFilteredList(search)
+        if(len(self.viewList) == 0):
+            self.viewList.append(tuple(("","","")))
+            
+        for x in range(len(self.viewList)):
+            site = tk.StringVar()
+            site.set(self.viewList[x][0])
+            self.viewListSite.append(tk.Entry(master=self.viewFrame,textvariable=site,state="readonly"))
+            self.viewListSite[x].grid(row=x+1,column=0,padx=2)
+
+            user = tk.StringVar()
+            user.set(self.viewList[x][1])
+            self.viewListUser.append(tk.Entry(master=self.viewFrame,textvariable=user,state="readonly"))
+            self.viewListUser[x].grid(row=x+1,column=1,padx=2)
+
+            self.viewListPassShow.append(tk.Button(master=self.viewFrame,text="Show",command= partial(self.showPassword,cp=self.viewList[x][2]))) 
+            self.viewListPassShow[x].grid(row=x+1,column=2,padx=2)
+
+            self.viewListPassCopy.append(tk.Button(master=self.viewFrame,text="Copy",command=partial(self.copyToClip,cp=self.viewList[x][2]))) 
+            self.viewListPassCopy[x].grid(row=x+1,column=3,padx=2)
+
+            self.viewListDel.append(tk.Button(master=self.viewFrame,text="X",command=partial(self.deleteCred,site=self.viewList[x][0]))) 
+            self.viewListDel[x].grid(row=x+1,column=4,padx=2)
+
     
-    def addNewCred(self):
+    def addCred(self):
         addform = entryPopup(self.window)
         ep = encryptPasswords(addform.p,self.key)        
         self.db.newCred(addform.s,addform.u,ep)
         del addform
-
+        self.filterView()
  
-    def deleteCred(self):
+    def deleteCred(self, site):
         pass
 
-
-    def copyToClip():
+    def copyToClip(self, cp):
         pass
 
-    def showPassword():
-        pass
+    def showPassword(self,cp):
+        pp = decryptPasswords(cp,self.key)
+        showPasswordPopup(self.window,pp)
+
 
 
 
@@ -188,5 +247,8 @@ userpass = login.userpass
 del login
 mydb = PasswordDatabase()
 mydb.connect_or_create()
+#mydb.showLogin()
 key = genKeyFromMaster(userpass)
 app = mainView(mydb,key)
+
+mydb.closeConn()
