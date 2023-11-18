@@ -1,5 +1,4 @@
 import tkinter as tk
-import time
 from PMUtils import *
 from PMDB import PasswordDatabase
 from functools import partial
