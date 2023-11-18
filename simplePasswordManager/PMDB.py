@@ -35,6 +35,9 @@ class PasswordDatabase:
         self.cur.execute('SELECT * FROM LOGIN WHERE website = ?',[site,])
         return tuple(self.cur.fetchone())
     
+    def delCred(self,site):
+        self.cur.execute('DELETE FROM LOGIN WHERE website = ?',[site,])
+    
     def getFilteredList(self, search):
         self.cur.execute('SELECT * FROM LOGIN WHERE website like ?',['%'+search+'%',])
         return self.cur.fetchall()

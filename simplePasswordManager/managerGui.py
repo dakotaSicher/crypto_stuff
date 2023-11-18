@@ -135,13 +135,31 @@ class showPasswordPopup:
     def __init__(self,Master,pw) -> None:
         self.master= Master
         self.pop= tk.Toplevel(master=self.master)
-        self.pop.title("show Passoord")
+        self.pop.title("show Password")
         self.pop.geometry("200x100")
 
         password = tk.StringVar()
         password.set(pw)
         tk.Entry(master=self.pop,textvariable=password, state="readonly" ).pack()
         self.pop.wait_window()
+
+class confirmDeletePop:
+    def __init__(self,Master,site,db:PasswordDatabase) -> None:
+        self.master= Master
+        self.site =site
+        self.db = db
+        self.pop= tk.Toplevel(master=self.master)
+        self.pop.title("Delete Credential")
+        self.pop.geometry("200x100")
+        
+        tk.Label(master=self.pop,text="Are you sure?").pack()
+        tk.Button(master=self.pop,text="Delete Credential",command=self.deleteCred).pack()
+        self.pop.wait_window()
+
+    def deleteCred(self):
+        self.db.delCred(self.site)
+        self.pop.destroy()
+
 
 class mainView:
     def __init__(self,db:PasswordDatabase,key) -> None:
@@ -176,8 +194,6 @@ class mainView:
 
     def filterView(self,var=None, index=None, mode=None):
         search = "{}".format(self.searchStr.get())
-        #search = self.searchStr.get()
-        #print(search)
         for x in self.viewListSite:
             x.destroy()
         self.viewListSite.clear()
@@ -227,7 +243,7 @@ class mainView:
         self.filterView()
  
     def deleteCred(self, site):
-        
+        confirmDeletePop(self.window, site, self.db)
         self.filterView()
 
     def copyToClip(self, cp):
