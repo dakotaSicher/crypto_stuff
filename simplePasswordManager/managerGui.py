@@ -239,8 +239,6 @@ class mainView:
         showPasswordPopup(self.window,pp)
 
 
-
-
 login = None
 if(masterExists()):
     login = loginGui()
