@@ -1,9 +1,11 @@
 import sqlite3
+from os import path
 
 class PasswordDatabase:
 
     def __init__(self) -> None:
-        self.file = './credentials.sqlite'
+        dirname = path.dirname(__file__)
+        self.file = path.join(dirname,'credentials.sqlite')
         self.conn = None
         self.cur = None
 
@@ -37,6 +39,7 @@ class PasswordDatabase:
     
     def delCred(self,site):
         self.cur.execute('DELETE FROM LOGIN WHERE website = ?',[site,])
+        self.conn.commit()
     
     def getFilteredList(self, search):
         self.cur.execute('SELECT * FROM LOGIN WHERE website like ?',['%'+search+'%',])

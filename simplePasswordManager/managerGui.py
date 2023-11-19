@@ -20,6 +20,7 @@ class loginGui:
 
         self.pwd_var = tk.StringVar()
         self.Entry = tk.Entry(master=self.window,show="*",textvariable=self.pwd_var)
+        self.Entry.focus_set()
         self.Entry.pack()
 
         self.Button = tk.Button(master=self.window,text="Login", command=self.login)
@@ -40,12 +41,7 @@ class loginGui:
         else:
             self.noMatch.pack_forget()
             tk.Label(master=self.window,text = "success").pack()
-            self.window.after(1000,self.window.destroy)
-
-
-        #retrieve masterHash from file
-        #hash entered password
-        #compare to hash from file
+            self.window.after(500,self.window.destroy)
 
 class setMasterGui:
     def __init__(self) -> None:
@@ -63,6 +59,7 @@ class setMasterGui:
         
         self.pwd_var = tk.StringVar()
         self.Entry = tk.Entry(master=self.window,show="*",textvariable=self.pwd_var)
+        self.Entry.focus_set()
         self.Entry.pack()
 
         self.Button = tk.Button(master=self.window,text="Submit", command=self.get_first)
@@ -98,7 +95,7 @@ class entryPopup:
         self.master= Master
         self.pop= tk.Toplevel(master=self.master)
         self.pop.title("Add New Credentials")
-        self.pop.geometry("200x100")
+        self.pop.geometry("250x120")
         
         tk.Label(master=self.pop,text="Website:").grid(row=0,column=0,sticky= 'E')
         self.site = tk.StringVar()
@@ -116,7 +113,11 @@ class entryPopup:
         self.passwordEntry = tk.Entry(master=self.pop,show='*',textvariable=self.password)
         self.passwordEntry.grid(row=2,column=1)
 
-        tk.Button(master=self.pop,text="confirm",command=self.saveCred).grid(row=3,column=0,columnspan=2)
+        tk.Button(master=self.pop,text="generate",command=self.genRandomPass).grid(row=2,column=2)
+
+        tk.Button(master=self.pop,text="confirm",command=self.saveCred).grid(row=3,column=0,columnspan=3)
+
+        self.error = tk.Label(master=self.pop, text="An entry was left blank")
 
         self.pop.bind("<Return>", self.saveCred)
         self.pop.wait_window()
@@ -125,11 +126,14 @@ class entryPopup:
         self.s = self.siteEntry.get()
         self.u = self.userEntry.get()
         self.p = self.passwordEntry.get()
-        #print(self.s,self.u,self.p)
-        self.pop.after(500,self.pop.destroy)
+        if(len(self.s )==0 or len(self.u )==0 or len(self.p )==0):
+            self.error.grid(row=4,column=0,columnspan=3)
+        else:
+            self.error.grid_forget()
+            self.pop.after(500,self.pop.destroy)
 
     def genRandomPass(self):
-        pass
+        self.password.set(genRandPw())
 
 class showPasswordPopup:
     def __init__(self,Master,pw) -> None:
@@ -159,7 +163,6 @@ class confirmDeletePop:
     def deleteCred(self):
         self.db.delCred(self.site)
         self.pop.destroy()
-
 
 class mainView:
     def __init__(self,db:PasswordDatabase,key) -> None:
@@ -237,10 +240,15 @@ class mainView:
     
     def addCred(self):
         addform = entryPopup(self.window)
-        ep = encryptPasswords(addform.p,self.key)        
-        self.db.newCred(addform.s,addform.u,ep)
-        del addform
-        self.filterView()
+        if(len(addform.s)==0 or len(addform.u)==0 or len(addform.p)==0):
+            errorpop = tk.Toplevel(self.window)
+            tk.Message(master=errorpop,text="Form was incomplete, entry was not saved.").pack()
+            errorpop.wait_window()
+        else:
+            ep = encryptPasswords(addform.p,self.key)        
+            self.db.newCred(addform.s,addform.u,ep)
+            del addform
+            self.filterView()
  
     def deleteCred(self, site):
         confirmDeletePop(self.window, site, self.db)
@@ -253,7 +261,6 @@ class mainView:
     def showPassword(self,cp):
         pp = decryptPasswords(cp,self.key)
         showPasswordPopup(self.window,pp)
-
 
 login = None
 if(masterExists()):

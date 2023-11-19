@@ -1,6 +1,7 @@
 from os import path, stat
+import string
+import secrets
 
-from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes, padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -8,18 +9,21 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 iv = b"\x8e\x8d\xaa\x95a^*7\x19\xf3\xdd'\x07\xd40\xb2"
 mysalt = b'\x7f\xd7\x8dkK\xaf\x02{5\xfc\x02\xf9\xcc}M.'
 
+dirname = path.dirname(__file__)
+mPath = path.join(dirname,'master.txt')
+
 def masterExists():
-    if(path.isfile('./master.txt') and stat('./master.txt').st_size != 0):
+    if(path.isfile(mPath) and stat(mPath).st_size != 0):
         return True
     return False
 
 def getMaster():
-    if(path.isfile('./master.txt') and stat('./master.txt').st_size != 0):
-        file = open('./master.txt','rb')
+    if(path.isfile(mPath) and stat(mPath).st_size != 0):
+        file = open(mPath,'rb')
         return bytearray(file.read())
 
 def setMaster(p1):
-    file = open('./master.txt','wb')
+    file = open(mPath,'wb')
     h = hashes.Hash(hashes.SHA256())
     h.update(p1.encode())
     p = h.finalize() 
@@ -60,6 +64,6 @@ def decryptPasswords(ct, key):
     pt += unpadder.finalize()
     return pt.decode()
 
-
-
-
+def genRandPw():
+    charSelection = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(secrets.choice(charSelection) for c in range(20))
