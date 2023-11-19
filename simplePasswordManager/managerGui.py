@@ -170,21 +170,26 @@ class mainView:
         self.key = key
 
         self.window =tk.Tk()
-        self.window.geometry('500x500')
+        self.window.minsize(400,400)
         self.window.title("My password Manager")
 
+        self.topFrame = tk.Frame(master=self.window)
+        self.topFrame.pack(side="top")
         self.searchStr = tk.StringVar()
         self.searchStr.trace_add("write",self.filterView)
-        tk.Button(master=self.window,text="add",command=self.addCred).grid(row=0,column=0,padx=2)
-        tk.Entry(self.window, textvariable=self.searchStr).grid(row=0,column=2,padx=2)
-        tk.Button(master=self.window,text="Find",command=self.filterView).grid(row=0,column=3,padx=2)
+        tk.Button(master=self.topFrame,text="Add New",command=self.addCred).grid(row=0,column=0,padx=2)
+        tk.Entry(self.topFrame, textvariable=self.searchStr).grid(row=0,column=2,padx=2)
+        #tk.Button(master=self.window,text="Find",command=self.filterView).grid(row=0,column=3,padx=2)
     
         self.viewFrame = tk.Frame(master=self.window)
-        self.viewFrame.grid(row=1,column=0,columnspan=4,padx=2)
+        self.viewFrame.pack(side="top",fill='y')
+
+        #self.scroll = tk.Scrollbar(self.viewFrame)
+        #self.scroll.pack(side="right",fill="y")
+
         tk.Label(master=self.viewFrame,text="Website:").grid(row=0,column=0,padx=2,sticky='W')
         tk.Label(master=self.viewFrame,text="username:" ).grid(row=0,column=1,padx=2,sticky='W')
         tk.Label(master=self.viewFrame,text="password:" ).grid(row=0,column=2,padx=2,columnspan=2,sticky="W")
-
         self.viewList = []
         self.viewListSite:list[tk.Text] = []
         self.viewListUser:list[tk.Entry] = []
