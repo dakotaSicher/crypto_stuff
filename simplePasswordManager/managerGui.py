@@ -5,7 +5,7 @@ import pyperclip
 from PMUtils import *
 from PMDB import PasswordDatabase
 
-
+#used for login when the masterpassword is already created
 class loginGui:
     def __init__(self) -> None:
         self.window = tk.Tk()
@@ -23,15 +23,19 @@ class loginGui:
         self.Entry.focus_set()
         self.Entry.pack()
 
+        #button on the login window calls the login function
         self.Button = tk.Button(master=self.window,text="Login", command=self.login)
         self.Button.pack()
 
         self.noMatch = tk.Label(master=self.window, text = "password is incorrect, try again")
 
+        #also pressing enter with the text entry selected call the login function
         self.Entry.bind("<Return>", self.login)
-        self.masterHash = getMaster()
+        self.masterHash = getMaster() #gets the stored hash of the master password
         self.window.mainloop()
 
+    #takes the entered password, hashes it, and compares it to the hash retrieved from file
+    #prompt the user to re-enter if the hashes do not match
     def login(self, event=None):
         self.userpass = self.pwd_var.get()
         self.userhash = getUserHash(self.userpass)
@@ -43,6 +47,8 @@ class loginGui:
             tk.Label(master=self.window,text = "success").pack()
             self.window.after(500,self.window.destroy)
 
+#used to set the master password the first time 
+#prompts user to enter the password twice to verify
 class setMasterGui:
     def __init__(self) -> None:
         self.window = tk.Tk()
@@ -68,6 +74,7 @@ class setMasterGui:
         self.Entry.bind("<Return>", self.get_first)
         self.window.mainloop()
     
+    #used to get the first entry from the text 
     def get_first(self,event=None):
         self.first = self.pwd_var.get()
         self.Entry.delete(0,tk.END)
@@ -75,6 +82,8 @@ class setMasterGui:
         self.Entry.bind("<Return>", self.get_second)
         self.Text["text"] = "Confirm password"
 
+    #after second password is entered, if the two entries match the password is hashed and saved
+    #otherwise the user is promted to re-enter
     def get_second(self,event=None):
         self.second = self.pwd_var.get()
         if(self.second != self.first):
@@ -88,8 +97,10 @@ class setMasterGui:
             tk.Label(master=self.window,text = "new password saved").pack()
             setMaster(self.second)
             self.userpass = self.second
-            self.window.after(1000,self.window.destroy)
+            self.window.after(500,self.window.destroy)
 
+#popup window for entering in new credentials 
+#gives user the option to use a randomly generated passwords 
 class entryPopup:
     def __init__(self,Master) -> None:
         self.master= Master
@@ -122,6 +133,8 @@ class entryPopup:
         self.pop.bind("<Return>", self.saveCred)
         self.pop.wait_window()
 
+    #verifies that none of the entries were left blank when the confirm button is pressed
+    #promts user if any entry is blank
     def saveCred(self,event=None):
         self.s = self.siteEntry.get()
         self.u = self.userEntry.get()
@@ -133,8 +146,9 @@ class entryPopup:
             self.pop.after(500,self.pop.destroy)
 
     def genRandomPass(self):
-        self.password.set(genRandPw())
+        self.password.set(genRandPw()) #see PMUtils.py
 
+#passwords are not displayed on the main screen, popup allows user to view
 class showPasswordPopup:
     def __init__(self,Master,pw) -> None:
         self.master= Master
@@ -147,6 +161,7 @@ class showPasswordPopup:
         tk.Entry(master=self.pop,textvariable=password, state="readonly" ).pack()
         self.pop.wait_window()
 
+#popup for deletion of credential - prompts user to confimrm before deletion
 class confirmDeletePop:
     def __init__(self,Master,site,db:PasswordDatabase) -> None:
         self.master= Master
@@ -164,6 +179,9 @@ class confirmDeletePop:
         self.db.delCred(self.site)
         self.pop.destroy()
 
+#main window:
+#options to add new credentials, and dynamic filtering of the display list
+#users can select to delete, view and copy to clipboard individual passwords
 class mainView:
     def __init__(self,db:PasswordDatabase,key) -> None:
         self.db = db
@@ -200,8 +218,11 @@ class mainView:
         self.searchStr.set("")
         self.window.mainloop()
 
+    #dynamically changes the list of credentials based on the entry box contents
     def filterView(self,var=None, index=None, mode=None):
         search = "{}".format(self.searchStr.get())
+
+        #clears the lists containing the text boxs and buttons from the window
         for x in self.viewListSite:
             x.destroy()
         self.viewListSite.clear()
@@ -218,10 +239,13 @@ class mainView:
             x.destroy()
         self.viewListDel.clear()
 
-        self.viewList = self.db.getFilteredList(search)
+        #retrieve list of credentials from db
+        self.viewList = self.db.getFilteredList(search) 
+        #if no values are returned for a search string then empty entry is displayed
         if(len(self.viewList) == 0):
             self.viewList.append(tuple(("","","")))
-            
+        
+        #repopulate window with credentials matching the search, and the associated buttons
         for x in range(len(self.viewList)):
             site = tk.StringVar()
             site.set(self.viewList[x][0])
@@ -242,7 +266,7 @@ class mainView:
             self.viewListDel.append(tk.Button(master=self.viewFrame,text="X",command=partial(self.deleteCred,site=self.viewList[x][0]))) 
             self.viewListDel[x].grid(row=x+1,column=4,padx=2)
 
-    
+    #creates add credential popup, and verifies the values returned are not empty(for the case where popup was closed by the X button, not the confirm button)
     def addCred(self):
         addform = entryPopup(self.window)
         if(len(addform.s)==0 or len(addform.u)==0 or len(addform.p)==0):
@@ -250,7 +274,7 @@ class mainView:
             tk.Message(master=errorpop,text="Form was incomplete, entry was not saved.").pack()
             errorpop.wait_window()
         else:
-            ep = encryptPasswords(addform.p,self.key)        
+            ep = encryptPasswords(addform.p,self.key)        #password is encrypted before storage
             self.db.newCred(addform.s,addform.u,ep)
             del addform
             self.filterView()
@@ -267,6 +291,8 @@ class mainView:
         pp = decryptPasswords(cp,self.key)
         showPasswordPopup(self.window,pp)
 
+
+#driver code
 login = None
 if(masterExists()):
     login = loginGui()
@@ -274,10 +300,8 @@ else:
     login = setMasterGui()
 userpass = login.userpass
 del login
-
 mydb = PasswordDatabase()
 mydb.connect_or_create()
 key = genKeyFromMaster(userpass)
-
 app = mainView(mydb,key)
 mydb.closeConn()
