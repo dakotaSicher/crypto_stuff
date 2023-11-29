@@ -132,6 +132,9 @@ class entryPopup:
 
         self.pop.bind("<Return>", self.saveCred)
         self.pop.wait_window()
+        self.u = None
+        self.s = None
+        self.p = None
 
     #verifies that none of the entries were left blank when the confirm button is pressed
     #promts user if any entry is blank
