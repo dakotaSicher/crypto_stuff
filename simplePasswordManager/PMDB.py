@@ -6,7 +6,7 @@ class PasswordDatabase:
 
     def __init__(self) -> None:
         dirname = path.dirname(__file__)
-        self.file = path.join(dirname,'credentials.sqlite')
+        self.file = path.join(dirname,'sicherDB.sqlite')
         self.conn = None
         self.cur = None
 

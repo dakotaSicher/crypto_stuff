@@ -55,6 +55,7 @@ def genKeyFromMaster(pwd):
     return key
 
 #passwords are encrypted using AES256 after padding is applied
+#https://cryptography.io/en/latest/hazmat/primitives/symmetric-encryption/#cryptography.hazmat.primitives.ciphers.algorithms.AES256
 def encryptPasswords(pt, key):
     padder = padding.PKCS7(256).padder()
     padded_password = padder.update(pt.encode())
