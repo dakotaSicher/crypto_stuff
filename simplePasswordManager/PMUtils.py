@@ -10,7 +10,7 @@ iv = b"\x8e\x8d\xaa\x95a^*7\x19\xf3\xdd'\x07\xd40\xb2"
 mysalt = b'\x7f\xd7\x8dkK\xaf\x02{5\xfc\x02\xf9\xcc}M.'
 
 dirname = path.dirname(__file__)
-mPath = path.join(dirname,'master.txt')
+mPath = path.join(dirname,'master')
 
 #checks if a master passworf file already exists
 def masterExists():
